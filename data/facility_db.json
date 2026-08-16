@@ -1,0 +1,403 @@
+{
+  "_comment": "Simulated Building Management System (BMS) data. In production this file would be replaced by a real BMS/IoT API - only app/mcp_server/repository.py would change.",
+
+  "buildings": [
+    {
+      "id": "BLDG-A",
+      "name": "Building A",
+      "aliases": ["building a", "bldg a", "tower a", "block a"],
+      "floors": 4,
+      "area_sqft": 82000,
+      "occupancy": 410,
+      "operating_mode": "cooling"
+    },
+    {
+      "id": "BLDG-B",
+      "name": "Building B",
+      "aliases": ["building b", "bldg b", "block b"],
+      "floors": 3,
+      "area_sqft": 51000,
+      "occupancy": 260,
+      "operating_mode": "cooling"
+    }
+  ],
+
+  "zones": [
+    {
+      "id": "ZONE-A-1F",
+      "building_id": "BLDG-A",
+      "floor": 1,
+      "name": "Building A - Floor 1 Lobby",
+      "current_temp_c": 22.4,
+      "setpoint_c": 22.0,
+      "humidity_pct": 51
+    },
+    {
+      "id": "ZONE-A-2F",
+      "building_id": "BLDG-A",
+      "floor": 2,
+      "name": "Building A - Floor 2 Open Office",
+      "current_temp_c": 24.9,
+      "setpoint_c": 22.0,
+      "humidity_pct": 57
+    },
+    {
+      "id": "ZONE-A-3F",
+      "building_id": "BLDG-A",
+      "floor": 3,
+      "name": "Building A - Floor 3 Office",
+      "current_temp_c": 26.8,
+      "setpoint_c": 22.0,
+      "humidity_pct": 61
+    },
+    {
+      "id": "ZONE-A-4F",
+      "building_id": "BLDG-A",
+      "floor": 4,
+      "name": "Building A - Floor 4 Meeting Rooms",
+      "current_temp_c": 23.1,
+      "setpoint_c": 22.0,
+      "humidity_pct": 53
+    },
+    {
+      "id": "ZONE-B-1F",
+      "building_id": "BLDG-B",
+      "floor": 1,
+      "name": "Building B - Floor 1 Office",
+      "current_temp_c": 22.1,
+      "setpoint_c": 22.0,
+      "humidity_pct": 49
+    }
+  ],
+
+  "assets": [
+    {
+      "id": "CH-01",
+      "name": "Chiller-01",
+      "aliases": ["chiller 01", "chiller one", "chiller-1", "chiller 1"],
+      "type": "chiller",
+      "building_id": "BLDG-A",
+      "location": "Basement Plant Room",
+      "manufacturer": "Carrier",
+      "model": "30XA-802",
+      "capacity": "800 TR",
+      "installed_on": "2019-03-14",
+      "last_service_date": "2026-05-02",
+      "next_service_due": "2026-08-02",
+      "warranty_expiry": "2027-03-14",
+      "criticality": "high",
+      "status": "running",
+      "health_score": 63,
+      "power_kw": 218.4,
+      "baseline_power_kw": 185.0,
+      "runtime_hours": 41230,
+      "metrics": {
+        "chw_supply_temp_c": 9.8,
+        "chw_supply_setpoint_c": 6.7,
+        "chw_return_temp_c": 14.2,
+        "condenser_approach_c": 3.9,
+        "evaporator_approach_c": 2.1,
+        "compressor_load_pct": 94
+      },
+      "notes": "Power draw trending above baseline since 2026-08-14."
+    },
+    {
+      "id": "CH-02",
+      "name": "Chiller-02",
+      "aliases": ["chiller 02", "chiller-2", "chiller 2"],
+      "type": "chiller",
+      "building_id": "BLDG-A",
+      "location": "Basement Plant Room",
+      "manufacturer": "Carrier",
+      "model": "30XA-802",
+      "capacity": "800 TR",
+      "installed_on": "2019-03-14",
+      "last_service_date": "2026-06-18",
+      "next_service_due": "2026-09-18",
+      "warranty_expiry": "2027-03-14",
+      "criticality": "high",
+      "status": "standby",
+      "health_score": 91,
+      "power_kw": 0.0,
+      "baseline_power_kw": 185.0,
+      "runtime_hours": 38110,
+      "metrics": {
+        "chw_supply_temp_c": null,
+        "chw_supply_setpoint_c": 6.7,
+        "compressor_load_pct": 0
+      },
+      "notes": "Healthy standby unit, available for changeover."
+    },
+    {
+      "id": "AHU-01",
+      "name": "AHU-01",
+      "aliases": ["ahu 01", "ahu-1", "ahu 1", "air handler 1"],
+      "type": "ahu",
+      "building_id": "BLDG-A",
+      "location": "Floor 1 Plant Room",
+      "manufacturer": "Trane",
+      "model": "M-Series CSAA",
+      "capacity": "9,000 CFM",
+      "installed_on": "2019-04-20",
+      "last_service_date": "2026-07-11",
+      "next_service_due": "2026-10-11",
+      "warranty_expiry": "2026-04-20",
+      "criticality": "medium",
+      "status": "running",
+      "health_score": 88,
+      "power_kw": 11.2,
+      "baseline_power_kw": 11.0,
+      "runtime_hours": 29870,
+      "metrics": {
+        "supply_airflow_cfm": 8850,
+        "design_airflow_cfm": 9000,
+        "filter_dp_inwc": 0.6,
+        "filter_dp_limit_inwc": 1.2,
+        "supply_air_temp_c": 13.4,
+        "fan_speed_pct": 72,
+        "chw_valve_position_pct": 58
+      },
+      "notes": "Operating normally."
+    },
+    {
+      "id": "AHU-02",
+      "name": "AHU-02",
+      "aliases": ["ahu 02", "ahu-2", "ahu 2", "air handler 2"],
+      "type": "ahu",
+      "building_id": "BLDG-A",
+      "location": "Floor 3 Plant Room",
+      "manufacturer": "Trane",
+      "model": "M-Series CSAA",
+      "capacity": "9,500 CFM",
+      "installed_on": "2019-04-20",
+      "last_service_date": "2026-02-09",
+      "next_service_due": "2026-08-09",
+      "warranty_expiry": "2026-04-20",
+      "criticality": "high",
+      "status": "running_degraded",
+      "health_score": 41,
+      "power_kw": 9.1,
+      "baseline_power_kw": 12.5,
+      "runtime_hours": 31240,
+      "metrics": {
+        "supply_airflow_cfm": 6200,
+        "design_airflow_cfm": 9500,
+        "filter_dp_inwc": 1.9,
+        "filter_dp_limit_inwc": 1.2,
+        "supply_air_temp_c": 12.9,
+        "fan_speed_pct": 98,
+        "chw_valve_position_pct": 100
+      },
+      "notes": "Airflow 35% below design while fan runs at 98%. Filter differential pressure above limit. Preventive maintenance is 8 days overdue."
+    },
+    {
+      "id": "AHU-03",
+      "name": "AHU-03",
+      "aliases": ["ahu 03", "ahu-3", "ahu 3"],
+      "type": "ahu",
+      "building_id": "BLDG-B",
+      "location": "Building B Floor 1 Plant Room",
+      "manufacturer": "Trane",
+      "model": "M-Series CSAA",
+      "capacity": "7,000 CFM",
+      "installed_on": "2020-01-15",
+      "last_service_date": "2026-07-01",
+      "next_service_due": "2026-10-01",
+      "warranty_expiry": "2027-01-15",
+      "criticality": "medium",
+      "status": "running",
+      "health_score": 94,
+      "power_kw": 8.4,
+      "baseline_power_kw": 8.5,
+      "runtime_hours": 21430,
+      "metrics": {
+        "supply_airflow_cfm": 6900,
+        "design_airflow_cfm": 7000,
+        "filter_dp_inwc": 0.5,
+        "filter_dp_limit_inwc": 1.2,
+        "supply_air_temp_c": 13.1,
+        "fan_speed_pct": 65
+      },
+      "notes": "Operating normally."
+    },
+    {
+      "id": "CT-01",
+      "name": "CoolingTower-01",
+      "aliases": ["cooling tower 1", "ct 01", "ct-1"],
+      "type": "cooling_tower",
+      "building_id": "BLDG-A",
+      "location": "Roof",
+      "manufacturer": "BAC",
+      "model": "PT2-0812",
+      "capacity": "900 TR",
+      "installed_on": "2019-03-14",
+      "last_service_date": "2026-06-25",
+      "next_service_due": "2026-09-25",
+      "warranty_expiry": "2027-03-14",
+      "criticality": "high",
+      "status": "running",
+      "health_score": 78,
+      "power_kw": 22.6,
+      "baseline_power_kw": 21.0,
+      "runtime_hours": 40120,
+      "metrics": {
+        "condenser_water_supply_c": 31.8,
+        "condenser_water_design_c": 29.5,
+        "fan_speed_pct": 100,
+        "basin_level_pct": 82
+      },
+      "notes": "Condenser water leaving temperature 2.3 C above design - reduces chiller efficiency."
+    },
+    {
+      "id": "VAV-A-3F-01",
+      "name": "VAV-A-3F-01",
+      "aliases": ["vav 3f 01"],
+      "type": "vav",
+      "building_id": "BLDG-A",
+      "location": "Floor 3 Office North",
+      "manufacturer": "Honeywell",
+      "model": "VAV-SD-10",
+      "capacity": "1,200 CFM",
+      "installed_on": "2019-05-02",
+      "last_service_date": "2026-04-15",
+      "next_service_due": "2026-10-15",
+      "warranty_expiry": "2026-05-02",
+      "criticality": "low",
+      "status": "running",
+      "health_score": 85,
+      "power_kw": 0.3,
+      "baseline_power_kw": 0.3,
+      "runtime_hours": 30100,
+      "metrics": {
+        "damper_position_pct": 100,
+        "airflow_cfm": 610,
+        "design_airflow_cfm": 1200,
+        "zone_temp_c": 26.8
+      },
+      "notes": "Damper fully open but cannot reach setpoint - starved of supply air."
+    }
+  ],
+
+  "relationships": [
+    { "parent": "BLDG-A", "child": "CH-01", "relation": "serves" },
+    { "parent": "BLDG-A", "child": "CH-02", "relation": "serves" },
+    { "parent": "BLDG-A", "child": "CT-01", "relation": "serves" },
+    { "parent": "CH-01", "child": "AHU-01", "relation": "supplies_chilled_water_to" },
+    { "parent": "CH-01", "child": "AHU-02", "relation": "supplies_chilled_water_to" },
+    { "parent": "CT-01", "child": "CH-01", "relation": "rejects_heat_for" },
+    { "parent": "AHU-01", "child": "ZONE-A-1F", "relation": "serves_zone" },
+    { "parent": "AHU-01", "child": "ZONE-A-2F", "relation": "serves_zone" },
+    { "parent": "AHU-02", "child": "ZONE-A-3F", "relation": "serves_zone" },
+    { "parent": "AHU-02", "child": "ZONE-A-4F", "relation": "serves_zone" },
+    { "parent": "AHU-02", "child": "VAV-A-3F-01", "relation": "supplies_air_to" },
+    { "parent": "VAV-A-3F-01", "child": "ZONE-A-3F", "relation": "serves_zone" },
+    { "parent": "BLDG-B", "child": "AHU-03", "relation": "serves" },
+    { "parent": "AHU-03", "child": "ZONE-B-1F", "relation": "serves_zone" }
+  ],
+
+  "alerts": [
+    {
+      "id": "ALM-1042",
+      "asset_id": "AHU-02",
+      "building_id": "BLDG-A",
+      "severity": "high",
+      "status": "active",
+      "raised_at": "2026-08-16T07:12:00",
+      "message": "Supply airflow 35% below design setpoint while fan speed is at 98%.",
+      "rule": "airflow_deviation > 20%"
+    },
+    {
+      "id": "ALM-1043",
+      "asset_id": "AHU-02",
+      "building_id": "BLDG-A",
+      "severity": "medium",
+      "status": "active",
+      "raised_at": "2026-08-15T18:40:00",
+      "message": "Filter differential pressure 1.9 inWC exceeds 1.2 inWC replacement limit.",
+      "rule": "filter_dp > limit"
+    },
+    {
+      "id": "ALM-1044",
+      "asset_id": "CH-01",
+      "building_id": "BLDG-A",
+      "severity": "medium",
+      "status": "active",
+      "raised_at": "2026-08-16T09:05:00",
+      "message": "Power consumption 18% above rolling 30-day baseline.",
+      "rule": "power_kw > baseline * 1.15"
+    },
+    {
+      "id": "ALM-1045",
+      "asset_id": null,
+      "building_id": "BLDG-A",
+      "severity": "medium",
+      "status": "active",
+      "raised_at": "2026-08-16T10:20:00",
+      "message": "Zone ZONE-A-3F temperature 26.8 C is 4.8 C above setpoint for 3 hours.",
+      "rule": "zone_temp_deviation > 2C for 60min"
+    },
+    {
+      "id": "ALM-1031",
+      "asset_id": "CT-01",
+      "building_id": "BLDG-A",
+      "severity": "low",
+      "status": "acknowledged",
+      "raised_at": "2026-08-12T11:00:00",
+      "message": "Condenser water leaving temperature above design by 2.3 C.",
+      "rule": "cw_supply > design + 2C"
+    }
+  ],
+
+  "sensor_history": {
+    "_comment": "Hourly readings for the last 8 hours, newest last.",
+    "CH-01": {
+      "power_kw": [186.2, 191.0, 198.7, 205.3, 209.8, 213.1, 216.0, 218.4],
+      "chw_supply_temp_c": [6.9, 7.2, 7.8, 8.4, 8.9, 9.2, 9.6, 9.8]
+    },
+    "AHU-02": {
+      "supply_airflow_cfm": [8900, 8600, 8100, 7600, 7100, 6800, 6400, 6200],
+      "filter_dp_inwc": [1.1, 1.2, 1.3, 1.5, 1.6, 1.7, 1.8, 1.9]
+    },
+    "AHU-01": {
+      "supply_airflow_cfm": [8820, 8840, 8860, 8830, 8850, 8870, 8840, 8850],
+      "filter_dp_inwc": [0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6]
+    },
+    "ZONE-A-3F": {
+      "temperature_c": [22.6, 23.1, 23.8, 24.5, 25.2, 25.9, 26.4, 26.8]
+    },
+    "ZONE-A-2F": {
+      "temperature_c": [22.2, 22.5, 23.0, 23.4, 23.9, 24.3, 24.6, 24.9]
+    }
+  },
+
+  "energy": {
+    "_comment": "Daily kWh totals by building, newest last (last 7 days).",
+    "BLDG-A": {
+      "dates": ["2026-08-11", "2026-08-12", "2026-08-13", "2026-08-14", "2026-08-15", "2026-08-16", "2026-08-17"],
+      "kwh": [4120, 4180, 4210, 4490, 4760, 5010, 5180],
+      "baseline_kwh": 4200,
+      "tariff_per_kwh": 0.11,
+      "currency": "USD"
+    },
+    "BLDG-B": {
+      "dates": ["2026-08-11", "2026-08-12", "2026-08-13", "2026-08-14", "2026-08-15", "2026-08-16", "2026-08-17"],
+      "kwh": [2310, 2280, 2350, 2300, 2330, 2290, 2320],
+      "baseline_kwh": 2320,
+      "tariff_per_kwh": 0.11,
+      "currency": "USD"
+    }
+  },
+
+  "service_requests": [
+    {
+      "id": "SR-2041",
+      "asset_id": "CT-01",
+      "priority": "low",
+      "status": "open",
+      "description": "Inspect cooling tower fill for scaling - condenser water above design.",
+      "created_at": "2026-08-12T11:30:00",
+      "assigned_to": "HVAC Team",
+      "notes": []
+    }
+  ]
+}

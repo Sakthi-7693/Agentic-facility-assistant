@@ -1,0 +1,29 @@
+
+# Generated at runtime
+.chroma/
+.audio/
+server.log
+server.err
+eval/results.json
+
+# NOTE: eval/results.md is committed on purpose - it is a deliverable.
+# `python -m eval.run_eval` overwrites it with your own numbers.
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Environment / secrets
+.env
+.env.*
+!.env.example

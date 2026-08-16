@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Nectar Facility Agent</title>
+<style>
+  :root {
+    --bg: #0f1419;      --panel: #171d25;   --panel-2: #1e2630;
+    --line: #2a3441;    --text: #e6edf3;    --muted: #8b98a9;
+    --accent: #38bdf8;  --ok: #4ade80;      --warn: #fbbf24;
+    --crit: #f87171;    --user: #1e3a5f;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column;
+  }
+  header {
+    padding: 14px 22px; background: var(--panel); border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; gap: 12px;
+  }
+  header h1 { font-size: 16px; font-weight: 600; }
+  header .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--ok); }
+  header .sub { color: var(--muted); font-size: 12px; margin-left: auto; }
+
+  main { flex: 1; display: grid; grid-template-columns: 1fr 360px; overflow: hidden; }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; } #panel { display: none; } }
+
+  #chat { overflow-y: auto; padding: 22px; display: flex; flex-direction: column; gap: 14px; }
+  .msg { max-width: 78%; padding: 12px 15px; border-radius: 12px; line-height: 1.55; font-size: 14.5px; }
+  .msg.user { align-self: flex-end; background: var(--user); }
+  .msg.bot  { align-self: flex-start; background: var(--panel-2); border: 1px solid var(--line); }
+  .msg.sys  { align-self: center; background: transparent; color: var(--muted); font-size: 12.5px; }
+  .meta { margin-top: 9px; font-size: 11.5px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag { background: #22303f; padding: 2px 8px; border-radius: 20px; }
+  .tag.route { background: #0c4a6e; color: #bae6fd; }
+  .tag.warn  { background: #713f12; color: #fde68a; }
+
+  #composer { padding: 14px 22px; border-top: 1px solid var(--line); background: var(--panel); display: flex; gap: 10px; }
+  #text { flex: 1; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--line);
+          background: var(--panel-2); color: var(--text); font-size: 14px; outline: none; }
+  #text:focus { border-color: var(--accent); }
+  button { border: 0; border-radius: 10px; padding: 12px 18px; font-size: 14px; font-weight: 600;
+           cursor: pointer; background: var(--accent); color: #04222e; }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  #mic.recording { background: #ef4444; color: #fff; animation: pulse 1.2s infinite; }
+  @keyframes pulse { 50% { opacity: .55; } }
+
+  #panel { background: var(--panel); border-left: 1px solid var(--line); padding: 18px; overflow-y: auto; }
+  #panel h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .8px; color: var(--muted);
+              margin: 16px 0 10px; display: flex; justify-content: space-between; align-items: center; }
+  #panel h2:first-child { margin-top: 0; }
+  .card { background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 12px; font-size: 13px; }
+  .row { display: flex; justify-content: space-between; gap: 10px; padding: 3px 0; }
+  .row span:first-child { color: var(--muted); }
+  .tool { font-family: ui-monospace, Consolas, monospace; font-size: 12px; padding: 5px 0; border-bottom: 1px solid var(--line); }
+  .tool:last-child { border: 0; }
+  .tool .bad { color: var(--crit); }
+
+  /* --- ticket list --- */
+  .ticket { border: 1px solid var(--line); border-radius: 9px; padding: 10px; margin-bottom: 8px;
+            background: var(--panel-2); transition: border-color .3s; }
+  .ticket.fresh { border-color: var(--ok); box-shadow: 0 0 0 1px var(--ok) inset; }
+  .ticket .head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .ticket .id { font-family: ui-monospace, Consolas, monospace; font-weight: 700; font-size: 13px; }
+  .ticket .desc { color: var(--muted); font-size: 11.5px; margin-top: 6px; line-height: 1.45; }
+  .ticket .foot { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+  .pill { font-size: 10.5px; padding: 2px 7px; border-radius: 20px; background: #22303f; color: var(--muted); }
+  .pill.critical { background: #7f1d1d; color: #fecaca; }
+  .pill.high     { background: #78350f; color: #fed7aa; }
+  .pill.medium   { background: #1e3a5f; color: #bfdbfe; }
+  .pill.low      { background: #2a3441; color: var(--muted); }
+  .pill.open     { background: #14532d; color: #bbf7d0; }
+  .count { background: var(--accent); color: #04222e; border-radius: 20px; padding: 1px 8px; font-size: 11px; font-weight: 700; }
+
+  .examples button { display: block; width: 100%; text-align: left; background: var(--panel-2);
+                     color: var(--text); border: 1px solid var(--line); font-weight: 400;
+                     font-size: 12.5px; padding: 9px 11px; margin-bottom: 7px; }
+  .examples button:hover { border-color: var(--accent); }
+
+  /* --- toast popup --- */
+  #toasts { position: fixed; top: 20px; right: 20px; z-index: 999; display: flex;
+            flex-direction: column; gap: 10px; max-width: 340px; }
+  .toast { background: var(--panel-2); border: 1px solid var(--ok); border-left: 4px solid var(--ok);
+           border-radius: 10px; padding: 13px 15px; box-shadow: 0 8px 24px rgba(0,0,0,.45);
+           animation: slideIn .28s ease-out; }
+  .toast.closing { animation: slideOut .25s ease-in forwards; }
+  @keyframes slideIn  { from { transform: translateX(120%); opacity: 0; } }
+  @keyframes slideOut { to   { transform: translateX(120%); opacity: 0; } }
+  .toast .t-head { display: flex; justify-content: space-between; align-items: center;
+                   font-weight: 700; font-size: 13.5px; color: var(--ok); }
+  .toast .t-close { cursor: pointer; color: var(--muted); font-size: 16px; line-height: 1; }
+  .toast .t-body { margin-top: 8px; font-size: 12.5px; line-height: 1.6; }
+  .toast .t-body b { font-family: ui-monospace, Consolas, monospace; }
+  .toast .t-foot { display: flex; gap: 6px; margin-top: 9px; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="dot"></div>
+  <h1>Nectar — Autonomous Facility Agent</h1>
+  <div class="sub" id="status">connecting…</div>
+</header>
+
+<main>
+  <div id="chat">
+    <div class="msg sys">Speak or type. Try the examples on the right.</div>
+  </div>
+
+  <aside id="panel">
+    <h2>Last turn</h2>
+    <div class="card">
+      <div class="row"><span>Route</span><span id="mRoute">—</span></div>
+      <div class="row"><span>Confidence</span><span id="mConf">—</span></div>
+      <div class="row"><span>Decided by</span><span id="mMethod">—</span></div>
+      <div class="row"><span>Agent</span><span id="mAgent">—</span></div>
+      <div class="row"><span>Latency</span><span id="mTime">—</span></div>
+    </div>
+
+    <h2>Tools called</h2>
+    <div class="card" id="toolCard"><span style="color:var(--muted)">none yet</span></div>
+
+    <h2>Maintenance tickets <span class="count" id="ticketCount">0</span></h2>
+    <div id="ticketList"><div class="card" style="color:var(--muted)">loading…</div></div>
+
+    <h2>Try these</h2>
+    <div class="examples">
+      <button data-q="What is an AHU?">What is an AHU? <em>(RAG)</em></button>
+      <button data-q="What is Chiller-01's current status?">Chiller-01 status <em>(live data)</em></button>
+      <button data-q="The office on the third floor feels very hot. Can you investigate and let me know if we need maintenance?">3rd floor is hot — investigate <em>(full agent)</em></button>
+      <button data-q="Create a maintenance request for AHU-02.">Raise a ticket for AHU-02 <em>(action)</em></button>
+      <button data-q="Summarize today's energy usage for Building A.">Today's energy usage <em>(data agent)</em></button>
+      <button data-q="What is the wifi password for the cafeteria?">Question not in the docs <em>(should refuse)</em></button>
+    </div>
+
+    <h2>Session</h2>
+    <div class="card">
+      <div class="row"><span>ID</span><span id="mSession">—</span></div>
+      <button style="width:100%;margin-top:9px" id="reset">New conversation</button>
+    </div>
+  </aside>
+</main>
+
+<div id="composer">
+  <button id="mic" title="Record">🎤 Record</button>
+  <input id="text" placeholder="Type a message, or press Record and speak…" autocomplete="off" />
+  <button id="send">Send</button>
+</div>
+
+<div id="toasts"></div>
+<audio id="player" autoplay></audio>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let sessionId = null;
+let recorder = null;
+let recording = false;
+let knownTickets = new Set();   // ticket IDs we have already shown
+
+// ---------------------------------------------------------------------------
+// Chat rendering
+// ---------------------------------------------------------------------------
+function addMessage(role, text, meta) {
+  const el = document.createElement('div');
+  el.className = `msg ${role}`;
+  el.textContent = text;
+  if (meta) el.appendChild(meta);
+  $('chat').appendChild(el);
+  $('chat').scrollTop = $('chat').scrollHeight;
+  return el;
+}
+
+function buildMeta(data) {
+  const meta = document.createElement('div');
+  meta.className = 'meta';
+  const tag = (cls, txt) => {
+    const s = document.createElement('span');
+    s.className = `tag ${cls}`; s.textContent = txt; meta.appendChild(s);
+  };
+  tag('route', `${data.route} · ${Math.round(data.route_confidence * 100)}%`);
+  if (data.rerouted_from) tag('warn', `re-routed from ${data.rerouted_from}`);
+  if (data.awaiting_confirmation) tag('warn', 'awaiting your confirmation');
+  (data.sources || []).forEach(s => tag('', `📄 ${s}`));
+  return meta;
+}
+
+function updatePanel(data) {
+  $('mRoute').textContent = data.route || '—';
+  $('mConf').textContent = data.route_confidence != null ? `${Math.round(data.route_confidence * 100)}%` : '—';
+  $('mMethod').textContent = data.route_method || '—';
+  $('mAgent').textContent = data.agent || '—';
+  const t = data.timings_ms || {};
+  $('mTime').textContent = Object.entries(t).map(([k, v]) => `${k} ${v}ms`).join(' · ') || '—';
+  $('mSession').textContent = (data.session_id || '').slice(-8);
+
+  const card = $('toolCard');
+  card.innerHTML = '';
+  if (!data.tools_used || !data.tools_used.length) {
+    card.innerHTML = '<span style="color:var(--muted)">no tools used</span>';
+    return;
+  }
+  data.tools_used.forEach(t => {
+    const row = document.createElement('div');
+    row.className = 'tool';
+    row.innerHTML = `${t.ok ? '✓' : '<span class="bad">✕</span>'} ${t.tool}` +
+                    (t.summary ? `<br><span style="color:var(--muted)">${t.summary}</span>` : '');
+    card.appendChild(row);
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Tickets
+// ---------------------------------------------------------------------------
+function renderTickets(tickets, freshIds) {
+  $('ticketCount').textContent = tickets.length;
+  const list = $('ticketList');
+  list.innerHTML = '';
+
+  if (!tickets.length) {
+    list.innerHTML = '<div class="card" style="color:var(--muted)">no open tickets</div>';
+    return;
+  }
+
+  // Newest first, so a ticket raised during the demo appears at the top.
+  [...tickets].reverse().forEach(t => {
+    const el = document.createElement('div');
+    el.className = 'ticket' + (freshIds.has(t.id) ? ' fresh' : '');
+    el.innerHTML =
+      `<div class="head">
+         <span class="id">${t.id}</span>
+         <span class="pill ${t.priority}">${t.priority}</span>
+       </div>
+       <div class="desc">${t.asset_id} — ${t.description}</div>
+       <div class="foot">
+         <span class="pill ${t.status}">${t.status}</span>
+         <span class="pill">${t.assigned_to || 'unassigned'}</span>
+       </div>`;
+    list.appendChild(el);
+  });
+}
+
+async function refreshTickets(announce) {
+  try {
+    const res = await fetch('/api/service-requests');
+    const data = await res.json();
+    const tickets = data.service_requests || [];
+
+    const fresh = new Set(
+      tickets.map(t => t.id).filter(id => !knownTickets.has(id))
+    );
+
+    // On the first load we only record what exists - nothing is "new" yet.
+    if (announce) fresh.forEach(id => {
+      const ticket = tickets.find(t => t.id === id);
+      if (ticket) showTicketToast(ticket);
+    });
+
+    tickets.forEach(t => knownTickets.add(t.id));
+    renderTickets(tickets, announce ? fresh : new Set());
+  } catch (err) {
+    console.warn('ticket refresh failed', err);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Toast popup
+// ---------------------------------------------------------------------------
+function showTicketToast(ticket) {
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.innerHTML =
+    `<div class="t-head">
+       <span>🎫 Ticket raised</span>
+       <span class="t-close">&times;</span>
+     </div>
+     <div class="t-body">
+       <b>${ticket.id}</b> created for <b>${ticket.asset_id}</b><br>
+       ${ticket.description}
+     </div>
+     <div class="t-foot">
+       <span class="pill ${ticket.priority}">${ticket.priority} priority</span>
+       <span class="pill ${ticket.status}">${ticket.status}</span>
+       <span class="pill">${ticket.assigned_to || 'unassigned'}</span>
+     </div>`;
+
+  const dismiss = () => {
+    el.classList.add('closing');
+    setTimeout(() => el.remove(), 250);
+  };
+  el.querySelector('.t-close').onclick = dismiss;
+  setTimeout(dismiss, 9000);
+
+  $('toasts').appendChild(el);
+}
+
+// ---------------------------------------------------------------------------
+// API
+// ---------------------------------------------------------------------------
+async function sendTurn(url, body, isForm) {
+  const thinking = addMessage('sys', 'thinking…');
+  $('send').disabled = true;
+
+  try {
+    const res = await fetch(url, isForm
+      ? { method: 'POST', body }
+      : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const data = await res.json();
+    thinking.remove();
+
+    if (!res.ok) { addMessage('sys', `Error: ${data.detail || res.status}`); return; }
+
+    sessionId = data.session_id;
+    if (data.transcript && isForm) addMessage('user', data.transcript);
+    addMessage('bot', data.reply, buildMeta(data));
+    updatePanel(data);
+
+    if (data.audio_file) $('player').src = `/api/audio/${data.audio_file}`;
+
+    // A ticket may have just been created - check and pop up if so.
+    refreshTickets(true);
+  } catch (err) {
+    thinking.remove();
+    addMessage('sys', `Network error: ${err.message}`);
+  } finally {
+    $('send').disabled = false;
+  }
+}
+
+function sendText() {
+  const message = $('text').value.trim();
+  if (!message) return;
+  addMessage('user', message);
+  $('text').value = '';
+  sendTurn('/api/chat', { message, session_id: sessionId }, false);
+}
+
+// ---------------------------------------------------------------------------
+// Microphone
+// ---------------------------------------------------------------------------
+async function toggleRecording() {
+  if (recording) { recorder.stop(); return; }
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    recorder = new MediaRecorder(stream);
+    const chunks = [];
+
+    recorder.ondataavailable = (e) => chunks.push(e.data);
+    recorder.onstop = () => {
+      stream.getTracks().forEach(t => t.stop());
+      recording = false;
+      $('mic').classList.remove('recording');
+      $('mic').textContent = '🎤 Record';
+
+      const form = new FormData();
+      form.append('audio', new Blob(chunks, { type: 'audio/webm' }), 'speech.webm');
+      if (sessionId) form.append('session_id', sessionId);
+      sendTurn('/api/voice', form, true);
+    };
+
+    recorder.start();
+    recording = true;
+    $('mic').classList.add('recording');
+    $('mic').textContent = '⏹ Stop';
+  } catch (err) {
+    addMessage('sys', `Microphone unavailable: ${err.message}. You can still type.`);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Wiring
+// ---------------------------------------------------------------------------
+$('send').onclick = sendText;
+$('mic').onclick = toggleRecording;
+$('text').onkeydown = (e) => { if (e.key === 'Enter') sendText(); };
+
+$('reset').onclick = async () => {
+  if (sessionId) await fetch('/api/session/reset', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ session_id: sessionId })
+  });
+  sessionId = null;
+  $('chat').innerHTML = '<div class="msg sys">New conversation started.</div>';
+};
+
+document.querySelectorAll('.examples button').forEach(btn => {
+  btn.onclick = () => { $('text').value = btn.dataset.q; sendText(); };
+});
+
+fetch('/health').then(r => r.json()).then(h => {
+  $('status').textContent =
+    `${h.llm_provider} · ${h.mcp_tools} MCP tools · ${h.kb_chunks} chunks · tracing ${h.tracing ? 'on' : 'off'}`;
+}).catch(() => { $('status').textContent = 'backend unreachable'; });
+
+refreshTickets(false);   // first load: record existing tickets, announce nothing
+</script>
+</body>
+</html>
